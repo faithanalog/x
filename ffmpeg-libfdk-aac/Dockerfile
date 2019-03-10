@@ -9,14 +9,14 @@ RUN apk update \
 USER ffmpeg
 WORKDIR /home/ffmpeg
 
+COPY APKBUILD.patch APKBUILD.patch
 
 RUN abuild-keygen -ain \
     && echo '/home/ffmpeg/packages/testing' | sudo tee -a /etc/apk/repositories \
     && wget 'https://git.alpinelinux.org/aports/snapshot/aports-3.9.2.tar.xz' \
-    && tar xvpJf aports-3.9.2.tar.xz aports-3.9.2/community/ffmpeg aports-3.9.2/testing/fdk-aac
-RUN (cd aports-3.9.2/testing/fdk-aac && abuild -r)
-COPY APKBUILD.patch APKBUILD.patch
-RUN ( \
+    && tar xvpJf aports-3.9.2.tar.xz aports-3.9.2/community/ffmpeg aports-3.9.2/testing/fdk-aac \
+    && (cd aports-3.9.2/testing/fdk-aac && abuild -r) \
+    && ( \
         cd aports-3.9.2/community \
         && mv ffmpeg ffmpeg-libfdk \
         && cd ffmpeg-libfdk \
