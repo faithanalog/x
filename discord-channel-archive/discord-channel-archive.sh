@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ev
+set -e
 
 # Requires curl and jq
 (
@@ -38,14 +38,15 @@ makeAPICall() {(
     args=""
 
     while [ $# -gt 0 ]; do
-        args="$args"$'\n'"--data-urlencode"$'\n'"$1"
+        args="$(printf '%s\n--data-urlencode\n%s' "$args" "$1")"
+        shift
     done
 
     # TODO why does this give "error malformed url"
-    echo "$args" \
+    printf '%s' "$args" \
+        | tail -n+2 \
         | tr '\n' '\0' \
         | xargs -0 curl \
-            -vvv \
             $verb \
             -H "Authorization: Bot $DISCORD_CLIENT_TOKEN" \
             -H "User-Agent: DiscordBot (https://github.com/faithanalog/x/blob/master/discord-channel-archive/discord-channel-archive.sh, v0.0.1)" \
@@ -67,7 +68,8 @@ patch() {
 # echo "Bot running... invite with the following link:"
 # echo "https://discordapp.com/oauth2/authorize?client_id=$DISCORD_CLIENT_ID&scope=bot&permissions=66560"
 
-get "/channels/513791425557823493"
-echo
-#get "/channels/513791425557823493/messages" "after=515211394992308234"
+#get "/channels/513791425557823493"
+#echo
+get "/channels/513791425557823493/messages" "after=515211394992308234" \
+    | jq -r '.[] | ( .content, .author.id )'
 echo
