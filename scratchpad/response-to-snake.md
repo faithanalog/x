@@ -14,7 +14,7 @@ chain (Snake snakeAB) (Snake snakeBC) = Snake (snakeBC . snakeAB)
 This is basically just a wrapper around function composition. I think that what you actually want is Either. Consider:
 
 ```haskell
-data Either = Left r | Right a
+data Either r a = Left r | Right a
 
 -- I'm omitting the requisite Functor and Applicative instances because I
 -- don't feel like writing them.
