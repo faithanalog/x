@@ -25,6 +25,9 @@ https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt
 
 ##Hosts-file.net
 https://hosts-file.net/ad_servers.txt
+
+# Fakenews
+https://raw.githubusercontent.com/marktron/fakenews/master/fakenews
 '
 
 dl_file="$(mktemp)"
