@@ -65,16 +65,27 @@ printf '%s' "$adlists" | grep '^[^# ]' | while read -r url; do
 done
 
 cat "$dl_file" \
-    | grep '^[^#]' \
-    | sed -E 's/^[^ ]*[ \t]+//g; s/\r//g' \
-    | grep '^[^#]' \
+    | sed '
+        # Remove comments
+        s/#.*$//g
+
+        # Remove leading spaces
+        s/^[ \t]*//
+
+        # Remove trailing spaces
+        s/[ \t]*$//
+
+        # Remove DOS newlines
+        s/\r//g
+    ' \
+    | awk '/./ { print $2 }' \
     | grep -v \
         -e '^localhost$' \
         -e '^localhost\.localdomain$' \
         -e '^local$' \
         -e '^broadcasthost$' \
         -e '^0.0.0.0$' \
-    | sed 's/#.*$//g; s/ *$/. IN A 0.0.0.0/' \
+    | sed 's/$/. IN A 0.0.0.0/' \
     | sort \
     | uniq \
     > "$aggregate_file"
