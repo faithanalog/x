@@ -74,7 +74,7 @@ cat "$dl_file" \
         -e '^local$' \
         -e '^broadcasthost$' \
         -e '^0.0.0.0$' \
-    | sed 's/#.*$//; s/$/. IN A 0.0.0.0/' \
+    | sed 's/#.*$//g; s/$/. IN A 0.0.0.0/' \
     | sort \
     | uniq \
     > "$aggregate_file"
