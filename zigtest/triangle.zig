@@ -1,12 +1,13 @@
 const std = @import("std");
 
-// 97x27
-
-/// Dark -> Light color to text
+// Dark -> Light color map
 const colorMap = " ,:!=+%#$";
+
+// Hardcoded terminal size
 const fbWidth = 97;
 const fbHeight = 26;
 
+// Framebuffer
 var fb: [fbWidth * fbHeight]f32 = undefined;
 
 const Vec2 = struct {
@@ -23,12 +24,12 @@ const Tri = struct {
     c2: f32,
 };
 
-// Counter-clockwise
+// Clockwise winding
 fn edgeFunction(a: Vec2, b: Vec2, c: Vec2) f32 {
     return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
-    // return (a.x - b.x) * (c.y - a.y) - (a.y - b.y) * (c.x - a.x);
 }
 
+// Basic unoptimized barycentric rasterizer
 fn renderTri(t: Tri) void {
     const area = edgeFunction(t.v0, t.v1, t.v2);
 
@@ -40,7 +41,6 @@ fn renderTri(t: Tri) void {
             const w0 = edgeFunction(t.v1, t.v2, p);
             const w1 = edgeFunction(t.v2, t.v0, p);
             const w2 = edgeFunction(t.v0, t.v1, p);
-            std.debug.warn("({}, {}): {}, {}, {}\n", x, y, w0, w1, w2);
             if (w0 >= 0 and w1 >= 0 and w2 >= 0) {
                 const c0 = t.c0 * (w0 / area);
                 const c1 = t.c1 * (w1 / area);
@@ -89,11 +89,18 @@ pub fn main() !void {
 
     var bright = true;
 
-    // Reset
+    // Reset and then set to color 15
     const init = "\x1B[0m\x1B[1;37m";
+
+    // Reset
     const reset = "\x1B[0m";
+
+    // Bold off (dark text)
     const makeDark = "\x1B[21m";
+
+    // Bold on (light text)
     const makeBright = "\x1B[1m";
+
     for (init) |b, i| fbChars[fbNum + i] = b;
     fbNum = fbNum + init.len;
 
