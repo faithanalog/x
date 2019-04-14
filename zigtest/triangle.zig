@@ -4,8 +4,8 @@ const std = @import("std");
 const colorMap = " ,:!=+%#$";
 
 // Hardcoded terminal size
-const fbWidth = 97;
-const fbHeight = 26;
+const fbWidth = 80;
+const fbHeight = 19;
 
 // Framebuffer
 var fb: [fbWidth * fbHeight]f32 = undefined;
@@ -62,22 +62,22 @@ fn clearFramebuffer() !void {
 pub fn main() !void {
     const tri = Tri{
         .v0 = Vec2{
-            .x = 80,
-            .y = 24,
+            .x = 75,
+            .y = 18,
         },
         .c0 = 1,
 
         .v1 = Vec2{
             .x = 60,
-            .y = 3,
+            .y = 2,
         },
         .c1 = 0.8,
 
         .v2 = Vec2{
             .x = 4,
-            .y = 17,
+            .y = 14,
         },
-        .c2 = 0,
+        .c2 = 0.2,
     };
 
     renderTri(tri);
