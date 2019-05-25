@@ -31,9 +31,7 @@ unless ENV['AUTH_TOKEN'] and ENV['AUTH_TOKEN'].length >= 16 and ENV['HOST_PREFIX
   exit 1
 end
 
-# Just like dont do a prefix if its not there
-ENV['HOST'] = '' unless ENV['HOST']
-
+# Make the folder to put stuff in
 FileUtils.mkdir_p 'public/files'
 
 # Authentication for uploads
