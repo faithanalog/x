@@ -46,7 +46,7 @@ ALPHABET = "abcdefghjkmnprsuvwxyz0123456789".each_char.to_a
 
 # Generate a random alphanumeric string for filenames
 def gen_rand_name
-  16.times.map { ALPHABET.sample }.join
+  12.times.map { ALPHABET.sample }.join
 end
 
 post '/mk/file' do
