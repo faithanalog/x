@@ -42,7 +42,7 @@ makeAPICall() {(
         shift
     done
 
-    # TODO why does this give "error malformed url"
+    # TODO make this do something with stdin to pass it to curl
     printf '%s' "$args" \
         | tail -n+2 \
         | tr '\n' '\0' \
