@@ -1,4 +1,8 @@
 #!/usr/bin/env ruby
+# This thing maps luminance values in an image to a range of colors, linearly
+# interpolating between the two input colors. Check the art folder for
+# example output
+#
 # No, we don't entirely know why we chose ruby for image processing either.
 # It was mainly because we didn't want to deal with loading PNG images in C,
 # or just writing C code in general. We could've used go, but meh.
@@ -84,8 +88,8 @@ if ARGV.length < 4 ||
     !ARGV[1].match?(/\A#[0-9a-zA-Z]{6}\z/) ||
     !ARGV[2].match?(/.png\z/) ||
     !ARGV[3].match?(/.png\z/)
-  puts "Usage: palettize.rb <color0> <color1> <input.png> <output.png>"
-  puts "  Ex: ./palettize.rb #110000 #EE0000 in.png out.png"
+  puts "Usage: color-interpolate-by-luminance.rb <color0> <color1> <input.png> <output.png>"
+  puts "  Ex: ./color-interpolate-by-luminance.rb #110000 #EE0000 in.png out.png"
   exit 1
 end
 
