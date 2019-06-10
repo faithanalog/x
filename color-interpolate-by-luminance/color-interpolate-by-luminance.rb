@@ -3,6 +3,8 @@
 # interpolating between the two input colors. Check the art folder for
 # example output
 #
+# We really like #272744 and #f2d3ab for a sort of sepia look
+#
 # No, we don't entirely know why we chose ruby for image processing either.
 # It was mainly because we didn't want to deal with loading PNG images in C,
 # or just writing C code in general. We could've used go, but meh.
