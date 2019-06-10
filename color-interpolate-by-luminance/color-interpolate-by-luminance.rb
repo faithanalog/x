@@ -14,6 +14,8 @@
 # actually about the same speed for some reason.
 #
 # BTW check this out https://howaboutanorange.com/blog/2011/08/10/color_interpolation/
+#
+# Also TODO: https://en.wikipedia.org/wiki/CIELAB_color_space
 require 'chunky_png'
 
 # Converts sRGB 0.0-1.0 to linear 0.0-1.0
