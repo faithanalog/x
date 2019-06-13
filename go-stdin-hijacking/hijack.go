@@ -4,8 +4,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	//"io"
-	//"errors"
 	"io/ioutil"
 )
 
@@ -37,7 +35,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = ioutil.WriteFile(tty, []byte("Hello!\n"), os.ModeCharDevice)
+	err = ioutil.WriteFile(tty, []byte("Hello! Type some stuff to get it echo'd by `cat`\n"), os.ModeCharDevice)
 	if err != nil {
 		log.Fatal(err)
 	}
