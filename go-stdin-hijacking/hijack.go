@@ -5,22 +5,28 @@ import (
 	"os"
 	"os/exec"
 	"io/ioutil"
+	"errors"
 )
 
 func getTTY() (string, error) {
-	const fd0 = "/proc/self/fd/0"
-	dest, err := os.Readlink(fd0)
+	const tty = "/dev/tty"
+	info, err := os.Stat(tty)
 	if err != nil {
 		return "", err
 	}
-	return dest, nil
+	mode := info.Mode()
+	if ((mode & os.ModeDevice) != 0) || ((mode & os.ModeCharDevice) != 0) {
+		return tty, nil
+	} else {
+		return "", errors.New("/dev/tty is not a device file!")
+	}
 }
 
 func main() {
 	tty, err := getTTY()
 	if err != nil {
 		println("We weren't able to get the current TTY! This only works on")
-		println("linux, so if you're not on linux that's why.")
+		println("linux and mac, so if you're on something else thats why.")
 		log.Fatal(err)
 	}
 
