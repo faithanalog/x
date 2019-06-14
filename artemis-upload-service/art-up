@@ -5,7 +5,7 @@ set -e
 if [ -f "$HOME/.art-up-token" ]; then
     UPLOAD_TOKEN="$(cat "$HOME/.art-up-token")"
 else
-    echo "Please but your auth token in $HOME/.art-up-token"
+    echo "Please put your auth token in $HOME/.art-up-token"
     exit 1
 fi
 
