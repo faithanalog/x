@@ -1,0 +1,12 @@
+[Unit]
+Description=Artemis Upload Service
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/artemis-upload-service.conf
+ExecStart=/usr/bin/ruby /usr/local/share/artemis-upload-service/artemis-upload-service.rb
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

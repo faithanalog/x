@@ -4,14 +4,28 @@
 # This is a web service that lets you upload files and images easily
 #
 # Environment variables:
+#
 # [REQUIRED]  AUTH_TOKEN=<token>
-# [REQUIRED]  HOST_PREFIX=https://somedomain.com/files
+#
+# [REQUIRED]  HOST_PREFIX=https://somedomain.com
+#               This is wherever files will be served from
+#
 # [OPTIONAL]  UPLOAD_PATH=where/to/put/uploaded/files
 #               default: public/files
+#
 # [OPTIONAL]  PORT=4567
+#               Port this service will use
 #               default: 4567
+#
 # [OPTIONAL]  HOST=127.0.0.1
+#               Host this service will bind to. Set to 0.0.0.0 for all
+#               interfaces
 #               default: 127.0.0.1
+#
+# [OPTIONAL]  SERVE_FILES=TRUE
+#               Whether this service should serve static files or not. Set
+#               to false if that'll be handled by nginx or something.
+#               default: TRUE
 #
 # The server wont start if you dont provide an AUTH_TOKEN of at least length 16
 #
@@ -35,12 +49,23 @@
 require 'sinatra'
 require 'fileutils'
 
-set :bind, ENV['HOST'] || '127.0.0.1'
 
 # Fairly visually unambigous alphabet for filename generation
 ALPHABET = 'abcdefghjknprsuvwxyz23467'.each_char.to_a
 
 UPLOAD_PATH = ENV['UPLOAD_PATH'] || 'public/files/'
+
+SERVE_FILES = if ENV['SERVE_FILES']
+    ENV['SERVE_FILES'].match?(/\ATRUE\z/i)
+else
+    true
+end
+
+set :bind, ENV['HOST'] || '127.0.0.1'
+
+
+set :static, SERVE_FILES
+set :public_folder, UPLOAD_PATH
 
 # Ensure some basic auth sanity
 if !ENV['AUTH_TOKEN'] || ENV['AUTH_TOKEN'].length < 16 || !ENV['HOST_PREFIX']
