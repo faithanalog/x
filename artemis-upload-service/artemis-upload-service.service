@@ -7,6 +7,10 @@ EnvironmentFile=/etc/artemis-upload-service.conf
 ExecStart=/usr/bin/ruby /usr/local/share/artemis-upload-service/artemis-upload-service.rb
 KillMode=process
 Restart=on-failure
+# Please for the love of Lilith uncomment this, and set it to a user that isn't root
+# You'll also need to make sure the permission on UPLOAD_PATH allow the user to write
+# to it.
+#User=uploads
 
 [Install]
 WantedBy=multi-user.target
