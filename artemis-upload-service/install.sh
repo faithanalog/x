@@ -13,9 +13,10 @@ install --mode 644 -D -t "$PREFIX/lib/systemd/system" artemis-upload-service.ser
 install --mode 644 -D -t "$PREFIX/share/artemis-upload-service" Gemfile
 install --mode 755 -D -t "$PREFIX/share/artemis-upload-service" artemis-upload-service.rb
 install --mode 755 -d /var/artemis-upload-service/public/files
+install --mode 755 -t "$PREFIX/bin" art-up
 
 if ! [ -f /etc/artemis-upload-service.conf ]; then
-    install --mode 644 -C -t "/etc" artemis-upload-service.conf
+    install --mode 600 -C -t "/etc" artemis-upload-service.conf
 fi
 
 cd "$PREFIX/share/artemis-upload-service"
