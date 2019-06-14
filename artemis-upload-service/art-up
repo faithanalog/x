@@ -21,5 +21,5 @@ name="$(basename "$1")"
 curl \
     -H  "Content-Type: application/octet-stream" \
     -H "Auth: $UPLOAD_TOKEN" \
-    --data-binary="@$1" \
+    --data-binary "@$1" \
     "http://glaceon.eq:9009/mk/file?name=$name"
