@@ -7,8 +7,8 @@ The gist though is like:
 
 ```
 bundle install
-HOST=0.0.0.0 PORT=4567 UPLOAD_PATH=public/files AUTH_TOKEN=<random> HOST_PREFIX='http://127.0.0.1:4567/files' ruby artemis-upload-service.rb
+HOST=127.0.0.1 PORT=9009 UPLOAD_PATH=./files AUTH_TOKEN=aaaabbbbccccdddd HOST_PREFIX='http://127.0.0.1:9009' ruby artemis-upload-service.rb
 ```
 
-Or use `artemis-upload-service.service` and put `artemis-upload-service.conf`
-in `/etc`
+Or use `./install.sh` to install it as a service, and edit
+`/etc/artemis-upload-service.conf`
