@@ -109,5 +109,5 @@ post '/mk/file' do
     gen_rand_name 
   end
   IO.copy_stream(request.body, "#{UPLOAD_PATH}/#{name}")
-  "#{ENV['HOST_PREFIX']}/#{name}"
+  "#{ENV['HOST_PREFIX']}/#{name}\n"
 end

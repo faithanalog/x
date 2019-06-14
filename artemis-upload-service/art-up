@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -e
+
+UPLOAD_TOKEN=changeme
+
+# Upload a file via artemis-uploader-service
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <file>"
+    exit 1
+fi
+
+name="$(basename "$1")"
+
+curl -H "Auth: $UPLOAD_TOKEN" --data-binary="@$1" "http://glaceon.eq:9009/mk/file?name=$name"
