@@ -2,7 +2,12 @@
 
 set -e
 
-UPLOAD_TOKEN=changeme
+if [ -f "$HOME/.art-up-token" ]; then
+    UPLOAD_TOKEN="$(cat "$HOME/.art-up-token")"
+else
+    echo "Please but your auth token in $HOME/.art-up-token"
+    exit 1
+fi
 
 # Upload a file via artemis-uploader-service
 
@@ -13,4 +18,8 @@ fi
 
 name="$(basename "$1")"
 
-curl -H "Auth: $UPLOAD_TOKEN" --data-binary="@$1" "http://glaceon.eq:9009/mk/file?name=$name"
+curl \
+    -H  "Content-Type: application/octet-stream" \
+    -H "Auth: $UPLOAD_TOKEN" \
+    --data-binary="@$1" \
+    "http://glaceon.eq:9009/mk/file?name=$name"
