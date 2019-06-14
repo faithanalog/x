@@ -13,7 +13,14 @@ else
     u1="$3"
 fi
 
-printf '%s %s %s\n' "$n0" "$u0" "$u1" | awk '
+# Use higher precision if available
+if which gawk 1>/dev/null 2>/dev/null; then
+    AWK_COMMAND="gawk --bignum"
+else
+    AWK_COMMAND="awk"
+fi
+
+printf '%s %s %s\n' "$n0" "$u0" "$u1" | $AWK_COMMAND '
     function addTimeMapping(unit, nSeconds) {
         toSeconds[unit] = nSeconds
         fromSeconds[unit] = 1 / nSeconds
