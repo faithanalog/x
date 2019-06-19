@@ -3,7 +3,7 @@
 set -e
 
 # Change this to whatever your server URL is
-URL_BASE="http://127.0.0.1:9009"
+URL_BASE="http://glaceon.eq:9009"
 
 if [ -f "$HOME/.art-up-token" ]; then
     UPLOAD_TOKEN="$(cat "$HOME/.art-up-token")"

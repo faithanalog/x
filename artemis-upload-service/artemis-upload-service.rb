@@ -130,20 +130,16 @@ end
 
 post '/mk/mirror' do
   src = params['src']
-  begin
-    uri = URI(src)
-    name = gen_name(File.basename(uri.path))
-    res = HTTP.follow.get(uri)
-    if res.code != 200
-      return "Error - Got response code #{res.code}\n"
+  uri = URI.parse(URI.escape(src))
+  name = gen_name(File.basename(uri.path))
+  res = HTTP.follow.get(uri)
+  if res.code != 200
+    return "Error - Got response code #{res.code}\n"
+  end
+  File.open("#{UPLOAD_PATH}/#{name}", "w") do |f|
+    res.body.each do |chunk|
+      f.write(chunk)
     end
-    File.open("#{UPLOAD_PATH}/#{name}", "w") do |f|
-      res.body.each do |chunk|
-        f.write(chunk)
-      end
-    end
-  rescue URI::Error
-    return "Error - Invalid URI #{src}\n"
   end
   "#{ENV['HOST_PREFIX']}/#{name}\n"
 end
