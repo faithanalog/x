@@ -36,7 +36,7 @@ else
     name="$(basename "$1")"
 
     curl \
-        -H  "Content-Type: application/octet-stream" \
+        -H "Content-Type: application/octet-stream" \
         -H "Auth: $UPLOAD_TOKEN" \
         --data-binary "@$1" \
         "$URL_BASE/mk/file?name=$name"
