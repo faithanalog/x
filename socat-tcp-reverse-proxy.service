@@ -1,0 +1,11 @@
+[Unit]
+Description=SOCAT Reverse Proxy
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/socat TCP4-LISTEN:<srcport>,bind=0.0.0.0,reuseaddr,fork,su=nobody TCP4:<dsthost>:<dstport>
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
