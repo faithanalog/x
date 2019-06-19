@@ -45,6 +45,16 @@
 #   extension
 #
 #   Response: the URL of the uploaded file
+#
+#
+# POST to /mk/mirror?src=<url>
+#   
+#   Set the Auth header to AUTH_TOKEN
+#
+#   The server will download the requested URL and return a link to the
+#   downloaded file
+#
+#   Response: the URL of the downloaded file
 
 require 'sinatra'
 require 'fileutils'
