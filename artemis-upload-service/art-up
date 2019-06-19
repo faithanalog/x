@@ -30,7 +30,7 @@ if [ "$1" = "-m" ] || [ "$1" = "--mirror" ]; then
     fi
     curl \
         -H "Auth: $UPLOAD_TOKEN" \
-        -F "src=$2"
+        -F "src=$2" \
         "$URL_BASE/mk/mirror"
 else
     name="$(basename "$1")"
