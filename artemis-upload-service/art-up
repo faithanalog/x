@@ -2,6 +2,9 @@
 
 set -e
 
+# Change this to whatever your server URL is
+URL_BASE="http://127.0.0.1:9009"
+
 if [ -f "$HOME/.art-up-token" ]; then
     UPLOAD_TOKEN="$(cat "$HOME/.art-up-token")"
 else
@@ -11,15 +14,30 @@ fi
 
 # Upload a file via artemis-uploader-service
 
-if [ $# -eq 0 ]; then
+err_usage() {
     echo "Usage: $0 <file>"
+    echo "       $0 -m|--mirror <url>"
     exit 1
+}
+
+if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    err_usage
 fi
 
-name="$(basename "$1")"
+if [ "$1" = "-m" ] || [ "$1" = "--mirror" ]; then
+    if [ $# -ne 2 ]; then
+        err_usage
+    fi
+    curl \
+        -H "Auth: $UPLOAD_TOKEN" \
+        -F "src=$2"
+        "$URL_BASE/mk/mirror"
+else
+    name="$(basename "$1")"
 
-curl \
-    -H  "Content-Type: application/octet-stream" \
-    -H "Auth: $UPLOAD_TOKEN" \
-    --data-binary "@$1" \
-    "http://glaceon.eq:9009/mk/file?name=$name"
+    curl \
+        -H  "Content-Type: application/octet-stream" \
+        -H "Auth: $UPLOAD_TOKEN" \
+        --data-binary "@$1" \
+        "$URL_BASE/mk/file?name=$name"
+fi

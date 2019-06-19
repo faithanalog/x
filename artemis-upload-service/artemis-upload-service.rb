@@ -48,6 +48,8 @@
 
 require 'sinatra'
 require 'fileutils'
+require 'http'
+require 'uri'
 
 
 # Fairly visually unambigous alphabet for filename generation
@@ -96,18 +98,42 @@ def gen_rand_name(suffix)
   end
 end
 
-post '/mk/file' do
-  name = if params['name']
-    if params['name'].match?(/\A\.[^.]+\z/)
+def gen_name(param_name)
+  if param_name
+    if param_name.match?(/\A\.[^.]+\z/)
       # If the names parameter is an extension, just tack on a random prefix
-      gen_rand_name(params['name'])
+      gen_rand_name(param_name)
     else
       # Otherwise throw a dash in there to look nice
-      gen_rand_name("-" + params['name'])
+      gen_rand_name("-" + param_name)
     end
   else
     gen_rand_name 
   end
+end
+
+post '/mk/file' do
+  name = gen_name(params['name'])
   IO.copy_stream(request.body, "#{UPLOAD_PATH}/#{name}")
+  "#{ENV['HOST_PREFIX']}/#{name}\n"
+end
+
+post '/mk/mirror' do
+  src = params['src']
+  begin
+    uri = URI(src)
+    name = gen_name(File.basename(uri.path))
+    res = HTTP.follow.get(uri)
+    if res.code != 200
+      return "Error - Got response code #{res.code}\n"
+    end
+    File.open("#{UPLOAD_PATH}/#{name}", "w") do |f|
+      res.body.each do |chunk|
+        f.write(chunk)
+      end
+    end
+  rescue URI::Error
+    return "Error - Invalid URI #{src}\n"
+  end
   "#{ENV['HOST_PREFIX']}/#{name}\n"
 end
