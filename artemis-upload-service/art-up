@@ -17,6 +17,7 @@ fi
 err_usage() {
     echo "Usage: $0 <file>"
     echo "       $0 -m|--mirror <url>"
+    echo "       $0 -x|--remove-name <file>"
     exit 1
 }
 
@@ -33,7 +34,15 @@ if [ "$1" = "-m" ] || [ "$1" = "--mirror" ]; then
         -F "src=$2" \
         "$URL_BASE/mk/mirror"
 else
-    name="$(basename "$1")"
+    if [ "$1" = "-x" ] || [ "$1" = "--remove-name" ]; then
+        if [ $# -ne 2 ]; then
+            err_usage
+        fi
+        shift
+        name="$(basename "$1" | sed 's/^.*\(\.[^.]\+\)/\1/g')"
+    else
+        name="$(basename "$1")"
+    fi
 
     curl \
         -H "Content-Type: application/octet-stream" \
