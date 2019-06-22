@@ -28,7 +28,7 @@ typedef struct Color_XYZ {
     double z;
 } Color_XYZ;
 
-inline double srgb_to_linear_d(double x) {
+double srgb_to_linear_d(double x) {
     if (x <= 0.0404482362771082) {
         return x / 12.92;
     } else {
@@ -36,7 +36,7 @@ inline double srgb_to_linear_d(double x) {
     }
 }
 
-inline double linear_to_srgb_d(double x) {
+double linear_to_srgb_d(double x) {
     if (x > 0.0031308) {
         return 1.055 * (pow(x, 1.0 / 2.4) - 0.055);
     } else {
@@ -44,7 +44,7 @@ inline double linear_to_srgb_d(double x) {
     }
 }
 
-inline Color_LRGB srgb_to_linear(Color_SRGB i) {
+Color_LRGB srgb_to_linear(Color_SRGB i) {
     Color_LRGB o = {
         .r = srgb_to_linear_d(i.r),
         .g = srgb_to_linear_d(i.g),
@@ -53,11 +53,20 @@ inline Color_LRGB srgb_to_linear(Color_SRGB i) {
     return o;
 }
 
-inline double lerp(double a, double b, double x) {
+Color_SRGB linear_to_srgb(Color_LRGB i) {
+    Color_SRGB o = {
+        .r = linear_to_srgb_d(i.r),
+        .g = linear_to_srgb_d(i.g),
+        .b = linear_to_srgb_d(i.b)
+    };
+    return o;
+}
+
+double lerp(double a, double b, double x) {
   return a * (1.0 - x) + b * x;
 }
 
-inline uint16_t color_to_int_clamped(double x) {
+uint16_t color_to_int_clamped(double x) {
     if (x < 0) {
         return 0;
     } else if (x > 1) {
@@ -68,7 +77,7 @@ inline uint16_t color_to_int_clamped(double x) {
 }
 
 // https://en.wikipedia.org/wiki/CIE_1931_color_space
-inline Color_XYZ linear_to_xyz(Color_LRGB i) {
+Color_XYZ linear_to_xyz(Color_LRGB i) {
     double w = 1.0 / 0.17697;
     Color_XYZ o = {
         .x = (0.49000 * i.r + 0.31000 * i.g + 0.20000 * i.b) * w,
@@ -78,7 +87,7 @@ inline Color_XYZ linear_to_xyz(Color_LRGB i) {
     return o;
 }
 
-inline Color_LRGB xyz_to_linear(Color_XYZ i) {
+Color_LRGB xyz_to_linear(Color_XYZ i) {
     Color_LRGB o = {
         .r = 0.41847 * i.x - 0.15866 * i.y - 0.082835 * i.z,
         .g = -0.091169 * i.x + 0.25243 * i.y + 0.015708 * i.z,
@@ -87,7 +96,7 @@ inline Color_LRGB xyz_to_linear(Color_XYZ i) {
     return o;
 }
 
-inline double linear_to_y_normalized(Color_LRGB i) {
+double linear_to_y_normalized(Color_LRGB i) {
     return 0.17697 * i.r + 0.81240 * i.g + 0.01063 * i.b;
 }
 
@@ -129,7 +138,7 @@ void decode_ff(FILE* input, Image* image) {
     }
 }
 
-void hex_to_srgb(char* hex, double* r, double* g, double* b) {
+Color_SRGB hex_to_srgb(const char* hex) {
     if (*hex != '#' || strlen(hex) != 7) {
         printf("Invalid color %s\n", hex);
         print_help_and_die();
@@ -138,14 +147,17 @@ void hex_to_srgb(char* hex, double* r, double* g, double* b) {
         char c = hex[i];
         // This will catch null terminators too so we're good there.
         if (!(c >= '0' && c <= '9') && !(c >= 'a' && c <= 'f') && !(c >= 'A' && c <= 'F')) {
-            printf("Invalid color %s\n", hex);
+            fprintf(stderr, "Invalid color %s\n", hex);
             print_help_and_die();
         }
     }
     long int color = strtol(hex + 1, NULL, 16);
-    *r = (double)((color >> 16) & 0xFF) / 255.0;
-    *g = (double)((color >>  8) & 0xFF) / 255.0;
-    *b = (double)((color >>  0) & 0xFF) / 255.0;
+    Color_SRGB o = {
+        .r = (double)((color >> 16) & 0xFF) / 255.0,
+        .g = (double)((color >>  8) & 0xFF) / 255.0,
+        .b = (double)((color >>  0) & 0xFF) / 255.0
+    };
+    return o;
 }
 
 void encode_ff(FILE *output, Image *image) {
@@ -170,11 +182,39 @@ void encode_ff(FILE *output, Image *image) {
 
 int main(int argc, const char** argv) {
 	if (argc != 3) {
-        printf("%d\n", argc);
 		print_help_and_die();
 	}
+
+    Color_SRGB dark_srgb = hex_to_srgb(argv[1]);
+    Color_SRGB light_srgb = hex_to_srgb(argv[2]);
+    Color_XYZ dark = linear_to_xyz(srgb_to_linear(dark_srgb));
+    Color_XYZ light = linear_to_xyz(srgb_to_linear(light_srgb));
     Image image;
     decode_ff(stdin, &image);
+
+    size_t len = image.width * image.height * 4;
+    for (size_t i = 0; i < len; i+= 4) {
+        Color_SRGB in_srgb = {
+            .r = (double)image.pixels[i + 0] / 65535.0,
+            .g = (double)image.pixels[i + 1] / 65535.0,
+            .b = (double)image.pixels[i + 2] / 65535.0
+        };
+
+        double sf = linear_to_y_normalized(srgb_to_linear(in_srgb));
+
+        Color_XYZ xyz = {
+            .x = lerp(dark.x, light.x, sf),
+            .y = lerp(dark.y, light.y, sf),
+            .z = lerp(dark.z, light.z, sf)
+        };
+
+        Color_SRGB out_srgb = linear_to_srgb(xyz_to_linear(xyz));
+
+        image.pixels[i + 0] = color_to_int_clamped(out_srgb.r);
+        image.pixels[i + 1] = color_to_int_clamped(out_srgb.g);
+        image.pixels[i + 2] = color_to_int_clamped(out_srgb.b);
+    }
+
     encode_ff(stdout, &image);
     
 	return 0;
