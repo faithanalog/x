@@ -100,7 +100,6 @@ double linear_to_y_normalized(Color_LRGB i) {
     return 0.17697 * i.r + 0.81240 * i.g + 0.01063 * i.b;
 }
 
-
 typedef struct Image {
     uint32_t width;
     uint32_t height;
@@ -130,11 +129,8 @@ void decode_ff(FILE* input, Image* image) {
     image->pixels = (uint16_t*)malloc(sizeof(uint16_t) * len);
     fread(image->pixels, 2, len, input);
 
-    for (size_t i = 0; i < len; i += 4) {
-        image->pixels[i + 0] = ntohs(image->pixels[i + 0]);
-        image->pixels[i + 1] = ntohs(image->pixels[i + 1]);
-        image->pixels[i + 2] = ntohs(image->pixels[i + 2]);
-        image->pixels[i + 3] = ntohs(image->pixels[i + 3]);
+    for (size_t i = 0; i < len; i++) {
+        image->pixels[i] = ntohs(image->pixels[i]);
     }
 }
 
@@ -170,11 +166,8 @@ void encode_ff(FILE *output, Image *image) {
 
     size_t len = image->width * image->height * 4;
     uint16_t* buffer = (uint16_t*)malloc(sizeof(uint16_t) * len);
-    for (size_t i = 0; i < len; i += 4) {
-        buffer[i + 0] = htons(image->pixels[i + 0]);
-        buffer[i + 1] = htons(image->pixels[i + 1]);
-        buffer[i + 2] = htons(image->pixels[i + 2]);
-        buffer[i + 3] = htons(image->pixels[i + 3]);
+    for (size_t i = 0; i < len; i++) {
+        buffer[i] = htons(image->pixels[i]);
     }
     fwrite(buffer, 2, len, output);
     free(buffer);
