@@ -180,7 +180,7 @@ func main() {
 
 	palettize_row := func(y int) {
 		start := y * w * 4
-		end := start + w*4
+		end := start + (w * 4)
 		for i := start; i < end; i += 4 {
 			in_srgb := Color_SRGB{
 				r: float64(image.pixels[i+0]) / 65535.0,
