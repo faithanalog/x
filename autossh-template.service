@@ -1,0 +1,14 @@
+[Unit]
+Description=AutoSSH into remote server
+After=network.target
+
+[Service]
+# This environment variable is the most important part! It makes it so autossh won't
+# give up if it fails the initial connection attempt, which you need, otherwise this
+# won't work at boot properly.
+Environment=AUTOSSH_GATETIME=0
+ExecStart=autossh -N -i /path/to/keyfile -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" user@host
+
+
+[Install]
+WantedBy=multi-user.target
