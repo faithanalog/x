@@ -2,8 +2,8 @@
 
 if [ $# -lt 2 ]; then
     printf '%s\n' "Usage: $0 <output> <inputs...>"
-    printf 'This will probably break horrible if your files contain\n'
-    printf 'newlines\n'
+    printf 'This will probably break horrible if your files names\n'
+    printf 'contain newlines\n'
     exit 0
 fi
 
