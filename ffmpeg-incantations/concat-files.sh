@@ -3,7 +3,7 @@
 if [ $# -lt 2 ]; then
     printf '%s\n' "Usage: $0 <output> <inputs...>"
     printf 'This will probably break horrible if your files contain\n'
-    printf 'single-quotes or newlines\n'
+    printf 'newlines\n'
     exit 0
 fi
 
@@ -12,7 +12,7 @@ shift
 list="$(mktemp)"
 
 while [ $# -gt 0 ]; do
-    printf "file '%s'\\n" "$(readlink -fn "$1")"
+    printf "file '%s'\\n" "$(readlink -fn "$1" | sed "s/'/'"'\\'"''/g")"
     shift
 done >> "$list"
 
