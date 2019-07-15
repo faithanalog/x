@@ -8,10 +8,17 @@ fi
 fifo="$1"
 shift
 
-trap 'exit 0' SIGINT
 
 queue="$(mktemp)"
 lockfile="$(mktemp)"
+
+quit() {
+    lock
+    rm "$queue"
+    rm "$lockfile"
+    exit 0
+}
+trap quit SIGINT
 
 lock() {
     lk="$(cat /dev/urandom | head -c+16 | base64)"
