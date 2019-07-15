@@ -14,7 +14,7 @@ Thread.new do
   while true
     File.open(fifo) do |f|
       f.each_line do |ln|
-        queue.push ln
+        queue.push ln.chomp
       end
     end
   end
