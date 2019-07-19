@@ -32,10 +32,9 @@ palette_img = ChunkyPNG::Image.from_file(palette_file)
 image_img = ChunkyPNG::Image.from_file(image_file)
 
 $palette = palette_img.pixels
-$in_pixels = Array.new(image_img.pixels)
+$image_pixels = image_img.pixels
 
-def palettize(rotation)
-  $in_pixels.map do |pixel|
+$pixel_palette_indices = image_img.pixels.map do |pixel|
     y = srgb_to_grey_notlinear(
           ChunkyPNG::Color.r(pixel) / 255.0,
           ChunkyPNG::Color.g(pixel) / 255.0,
@@ -46,15 +45,19 @@ def palettize(rotation)
           #srgb_to_linear(ChunkyPNG::Color.b(pixel) / 255.0))
     #y = 0 if y < 0
     #y = 1 if y > 1
-    idx = ((($palette.length - 1) * y).to_i + rotation) % $palette.length
-    $palette[idx]
+    (($palette.length - 1) * y).to_i
+end
+
+def palettize(rotation)
+  $image_pixels.map!.with_index do |_, i|
+    $palette[($pixel_palette_indices[i] + rotation) % $palette.length]
   end
 end
 
 puts "palettizing"
 
 if rotation_start == rotation_end
-  image_img.pixels.replace(palettize(rotation_start))
+  palettize(rotation_start)
   puts "saving image"
   image_img.save(output_file, :fast_rgb)
 else
@@ -65,7 +68,7 @@ else
   (rotation_start .. rotation_end).each do |rotation|
     frame_s = fmt % frame
     puts "frame #{frame_s}"
-    image_img.pixels.replace(palettize(rotation))
+    palettize(rotation)
     image_img.save("#{output_file}/#{frame_s}.png", :fast_rgb)
 
     frame = frame + 1
