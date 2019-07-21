@@ -76,9 +76,9 @@ int main() {
     read_palette();
 
     float rotation = 0;
-    int frames = 0
+    int frames = 1;
     while (1) {
-        fprintf(stderr, "frame %d\n", i + 1);
+        fprintf(stderr, "frame %d\n", frames);
         read_frame();
         for (size_t pidx = 0; pidx < width * height; pidx++) {
             float y = grey_to_plt_lut[in_pixels[pidx]];
@@ -87,7 +87,7 @@ int main() {
         }
         write_frame();
         frames++;
-        rotation += rotation_step
+        rotation += rotation_step;
         if (rotation > plt_width * plt_height) {
             rotation -= plt_width * plt_height;
         }
