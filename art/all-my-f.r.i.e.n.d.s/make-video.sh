@@ -8,7 +8,7 @@ convert allmyfriends.png allmyfriends.ppm
 # however you wanna install youtube-dl
 youtube-dl -f bestvideo 'https://www.youtube.com/watch?v=Xs-HbHCcK58'
 
-gcc -O3 -Wno-unused-result -o plt-rotate-anim plt-rotate-anim.c -lm
+gcc -O3 -Wno-unused-result -o plt-rotate-anim plt-rotate-anim.c
 
 # TODO automate generating audio (its manual right now)
 

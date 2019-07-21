@@ -1,8 +1,5 @@
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <stdint.h>
-#include <math.h>
 
 // 512/(((1/(bpm/60.0))*4.0)*framerate)
 // 97, 29.97
