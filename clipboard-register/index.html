@@ -1,0 +1,106 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body {
+                font-family: sans-serif;
+                line-height: 1.6;
+                font-size: 18px;
+
+                color: #fbf5ef;
+                background-color: #272744;
+
+                /* margin: 0; */
+
+                margin: 1em auto;
+                max-width: 750px;
+                padding: 0 0.55em;
+            }
+            textarea {
+                color: #fbf5ef;
+                background-color: #494d7e;
+                border: 0;
+            }
+            input {
+                color: #fbf5ef;
+                background-color: #494d7e;
+                border-radius: 6px;
+                border: none;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                margin-top: 6px;
+                margin-bottom: 6px;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+            }
+        </style>
+    </head>
+    <body>
+        <textarea id="textarea" rows="25" style="width: 100%"></textarea>
+        <center>
+            <input id="send_paste" type="button" style="width: 30%" value="send paste">
+            <input id="get_paste" type="button" style="width: 30%" value="get paste">
+            <input id="copy_to_clipboard" type="button" style="width: 30%" value="copy to clipboard">
+            <p id="status"></p>
+        </center>
+        <script>
+            let textarea = document.querySelector("#textarea");
+            let sendPasteBtn = document.querySelector("#send_paste");
+            let getPasteBtn = document.querySelector("#get_paste");
+            let copyToClipboardBtn = document.querySelector("#copy_to_clipboard");
+            let statusField = document.querySelector("#status");
+
+            let statusUpdateTimeout = null;
+
+            function sendPaste() {
+                clearTimeout(statusUpdateTimeout);
+                statusField.innerText = "Pasting...";
+                let req = new XMLHttpRequest();
+                req.addEventListener("load", () => {
+                    statusField.innerText = "Pasted!";
+                    statusUpdateTimeout = setTimeout(() => {
+                        statusField.innerText = "";
+                    }, 5000);
+                });
+                req.open("POST", "/paste");
+                req.send(textarea.value);
+            }
+
+            function getPaste() {
+                clearTimeout(statusUpdateTimeout);
+                statusField.innerText = "Loading...";
+                let req = new XMLHttpRequest();
+                req.addEventListener("load", () => {
+                    textarea.value = req.responseText;
+                    statusField.innerText = "Loaded!";
+                    statusUpdateTimeout = setTimeout(() => {
+                        statusField.innerText = "";
+                    }, 5000);
+                });
+                req.open("GET", "/paste");
+                req.send();
+            }
+
+            function copyToClipboard() {
+                clearTimeout(statusUpdateTimeout);
+                
+                textarea.select();
+                textarea.setSelectionRange(0, textarea.value.length);
+                document.execCommand("copy");
+                
+                statusField.innerText = "Copied!";
+                statusUpdateTimeout = setTimeout(() => {
+                    statusField.innerText = "";
+                }, 5000);
+            }
+            
+            sendPasteBtn.addEventListener("click", sendPaste);
+            getPasteBtn.addEventListener("click", getPaste);
+            copyToClipboardBtn.addEventListener("click", copyToClipboard);
+
+            getPaste();
+        </script>
+    </body>
+</html>
