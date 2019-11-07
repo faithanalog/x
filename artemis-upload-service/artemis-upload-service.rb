@@ -60,6 +60,8 @@ require 'sinatra'
 require 'fileutils'
 require 'http'
 require 'uri'
+require 'cgi'
+require 'addressable/uri'
 
 
 # Fairly visually unambigous alphabet for filename generation
@@ -123,25 +125,26 @@ def gen_name(param_name)
 end
 
 post '/mk/file' do
-  name = gen_name(params['name'])
-  IO.copy_stream(request.body, "#{UPLOAD_PATH}/#{name}")
-  "#{ENV['HOST_PREFIX']}/#{name}\n"
+  name = gen_name(params[:file][:filename])
+  file_stream = params[:file][:tempfile]
+  IO.copy_stream(file_stream, "#{UPLOAD_PATH}/#{name}")
+  "#{ENV['HOST_PREFIX']}/#{Addressable::URI.escape(name)}\n"
 end
 
 post '/mk/mirror' do
-  src = params['src']
+  src = params[:src]
   uri = URI.parse(URI.escape(src))
   name = gen_name(File.basename(uri.path))
   res = HTTP.follow.get(uri)
   if res.code != 200
     return "Error - Got response code #{res.code}\n"
   end
-  File.open("#{UPLOAD_PATH}/#{name}", "w") do |f|
+  File.open("#{UPLOAD_PATH}/#{name}", 'w') do |f|
     res.body.each do |chunk|
       f.write(chunk)
     end
   end
-  "#{ENV['HOST_PREFIX']}/#{name}\n"
+  "#{ENV['HOST_PREFIX']}/#{Addressable::URI.escape(name)}\n"
 end
 
 # TODO /mk/yt youtube-dl frontend 

@@ -20,4 +20,5 @@ if ! [ -f /etc/artemis-upload-service.conf ]; then
 fi
 
 cd "$PREFIX/share/artemis-upload-service"
+rm Gemfile.lock || true
 bundle install --system
