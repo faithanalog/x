@@ -133,7 +133,7 @@ end
 
 post '/mk/mirror' do
   src = params[:src]
-  uri = URI.parse(URI.escape(src))
+  uri = URI.parse(Addressable::URI.escape(src))
   name = gen_name(File.basename(uri.path))
   res = HTTP.follow.get(uri)
   if res.code != 200

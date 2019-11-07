@@ -45,8 +45,7 @@ else
     fi
 
     curl \
-        -H "Content-Type: application/octet-stream" \
         -H "Auth: $UPLOAD_TOKEN" \
-        --data-binary "@$1" \
-        "$URL_BASE/mk/file?name=$name"
+        -F "file=@$1" \
+        "$URL_BASE/mk/file"
 fi
