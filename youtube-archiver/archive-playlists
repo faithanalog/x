@@ -32,7 +32,7 @@ ytdl() {
     # I've been burned by this too many times when dealing with ffmpeg
     # so im explicitly redirecting stdin to come from devnull
     #
-    # Also I'm rate limiting to 500KB/s because this is designed to kinda
+    # Also I'm rate limiting because this is designed to kinda
     # just chill in the background and I dont want it destroying my network
     youtube-dl \
         --download-archive ytdl-archive.txt \
@@ -42,6 +42,8 @@ ytdl() {
         -i \
         -f bestvideo+bestaudio \
         -r 500K \
+        --sleep-interval 30 \
+        --max-sleep-interval 90 \
         "$@" < /dev/null
 }
 
