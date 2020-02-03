@@ -1,0 +1,73 @@
+#!/bin/sh
+
+if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    printf 'Usage: %s %s\n' "$0" '<file with list of playlist links> [list of socks proxies]'
+    printf '%s\n' '    will write playlists to current folder'
+    printf '%s\n' '    format playlist links like so:'
+    printf '%s\n' '        folder_name_1'
+    printf '%s\n' '        playlist_link_1'
+    printf '%s\n' ''
+    printf '%s\n' '        folder_name_2'
+    printf '%s\n' '        playlist_link_2'
+    printf '%s\n' ''
+    printf '%s\n' '    list of proxies is just one line per socks proxy.'
+    printf '%s\n' '    dont put the socks5:// bit, the script adds that later'
+    printf '%s\n' '    so like:'
+    printf '%s\n' '        proxy1.some.domain:1080'
+    printf '%s\n' '        proxy2.some.domain:1080'
+    printf '%s\n' ''
+    printf '%s\n' '    also, the script is rate limited to 500KB/s. you can'
+    printf '%s\n' '    change that by editing the ytdl function in this file.'
+    exit 0
+fi
+
+playlist_file="$1"
+
+if [ -n "$2" ]; then
+    proxy_list="$(cat "$2")"
+fi
+
+ytdl() {
+    # I dont know if youtube-dl consumes stdin at all by default, but
+    # I've been burned by this too many times when dealing with ffmpeg
+    # so im explicitly redirecting stdin to come from devnull
+    #
+    # Also I'm rate limiting to 500KB/s because this is designed to kinda
+    # just chill in the background and I dont want it destroying my network
+    youtube-dl \
+        --download-archive ytdl-archive.txt \
+        --write-info-json \
+        --write-description \
+        --write-thumbnail \
+        -i \
+        -f bestvideo+bestaudio \
+        -r 500K \
+        "$@" < /dev/null
+}
+
+exclude_empty_lines() {
+    grep -v '^\s*$' "$@"
+}
+
+# Read lines from input playlist file, excluding any empty lines
+exclude_empty_lines "$playlist_file" \
+    | while read -r folder && read -r playlist_link; do
+        mkdir -p "$folder"
+        (
+            cd "$folder"
+
+            if [ -n "$proxy_list" ]; then
+                # Select a random proxy for this playlist
+                proxy="$(\
+                    printf '%s\n' "$proxy_list" \
+                        | exclude_empty_lines \
+                        | shuf \
+                        | head -n1 \
+                )"
+                printf 'using proxy %s\n' "$proxy"
+                ytdl --proxy "socks5://$proxy/" "$playlist_link"
+            else
+                ytdl "$playlist_link"
+            fi
+        )
+    done
