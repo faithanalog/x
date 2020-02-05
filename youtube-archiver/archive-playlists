@@ -72,6 +72,7 @@ dl_playlist() {
         --write-info-json \
         --write-description \
         --write-thumbnail \
+        --all-subs \
         -i \
         -f bestvideo+bestaudio \
         -r 500K \
@@ -88,6 +89,14 @@ exclude_empty_lines() {
 exclude_empty_lines "$playlist_file" \
     | while read -r folder && read -r playlist_link; do
         mkdir -p "$folder"
+
+        # For those unfamiliar: a pair of parentheses in a shell script
+        # creates a sub-shell. The general syntax is ( commands; go; here )
+        # I'm not going to get into all the specifics of subshells- you should
+        # research them on your own if you're interested. The important bit
+        # here is that changes to the working directory in a subshell do not
+        # persist outside of the subshell. This way I don't have to care about
+        # keeping track of which directory im in and how to return out of it.
         (
             cd "$folder"
 
