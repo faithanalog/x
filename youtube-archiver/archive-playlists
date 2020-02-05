@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Minimum and maximum sleep between each download. This is passed to
+# youtube-dl, and also used for some of our own sleep statements
+min_sleep=30
+max_sleep=90
+
 if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     printf 'Usage: %s %s\n' "$0" '<file with list of playlist links> [list of socks proxies]'
     printf '%s\n' '    will write playlists to current folder'
@@ -27,7 +32,35 @@ if [ -n "$2" ]; then
     proxy_list="$(cat "$2")"
 fi
 
-ytdl() {
+dl_playlist() {
+    # Grab the latest playlist info to a file. This is necessary to make
+    # sure we know what order the videos should play in. The videos write
+    # their playlist index when we use --write-info-json, but since we're
+    # caching video downloads, that won't get updated if we move stuff around
+    #
+    # The reason this creates a dated file is because i wanna be able to
+    # have a full history of the state of the playlist, in case the latest
+    # playlist gets corrupted, the command fails to run, or videos get
+    # deleted.
+    #
+    # Once the file is finished downloading it can be copied to the main
+    # playlist.json to make it easier for tools to access the latest playlist
+    playlist_json="playlist-$(date --rfc-3339=date).json"
+    youtube-dl \
+        --flat-playlist \
+        -J \
+        "$@" < /dev/null > "$playlist_json"
+
+    # atomically replace playlist.json by writing to a tempfile
+    # in the same directory and then using mv. This way if something else
+    # is reading the playlist.json as it gets updated, it won't get a
+    # half-written file. It's an extreme edge case but it makes me feel
+    # better.
+    temp_playlist_json="$(mktemp -p ./)"
+    cp "$playlist_json" "$temp_playlist_json"
+    mv "$temp_playlist_json" playlist.json
+
+
     # I dont know if youtube-dl consumes stdin at all by default, but
     # I've been burned by this too many times when dealing with ffmpeg
     # so im explicitly redirecting stdin to come from devnull
@@ -42,8 +75,8 @@ ytdl() {
         -i \
         -f bestvideo+bestaudio \
         -r 500K \
-        --sleep-interval 30 \
-        --max-sleep-interval 90 \
+        --sleep-interval $min_sleep \
+        --max-sleep-interval $max_sleep \
         "$@" < /dev/null
 }
 
@@ -67,9 +100,21 @@ exclude_empty_lines "$playlist_file" \
                         | head -n1 \
                 )"
                 printf 'using proxy %s\n' "$proxy"
-                ytdl --proxy "socks5://$proxy/" "$playlist_link"
+                
+                # Here we take advantage of the fact that dl_playlist splats
+                # all the arguments provided to it to the youtube-dl command
+                # with a $@ , but we may want to make the proxy arguments
+                # explicitly handled by the function instead
+                dl_playlist --proxy "socks5://$proxy/" "$playlist_link"
             else
                 ytdl "$playlist_link"
             fi
         )
+
+        # Throw in a sleep here so that we don't start making rapid-fire
+        # requests if all the playlists have all their videos downloaded
+        # already.
+        sleep_time=$(( ( $max_sleep + $min_sleep ) / 2 ))
+        printf 'playlist downloaded, sleeping %s seconds\n' "$sleep_time"
+        sleep "$sleep_time"
     done
