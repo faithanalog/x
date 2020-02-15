@@ -22,3 +22,4 @@ fi
 cd "$PREFIX/share/artemis-upload-service"
 rm Gemfile.lock || true
 bundle install --system
+systemctl daemon-reload

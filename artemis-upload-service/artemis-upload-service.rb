@@ -63,7 +63,6 @@ require 'uri'
 require 'cgi'
 require 'addressable/uri'
 
-
 # Fairly visually unambigous alphabet for filename generation
 ALPHABET = 'abcdefghjknprsuvwxyz23467'.each_char.to_a
 
@@ -126,8 +125,9 @@ end
 
 post '/mk/file' do
   name = gen_name(params[:file][:filename])
-  file_stream = params[:file][:tempfile]
-  IO.copy_stream(file_stream, "#{UPLOAD_PATH}/#{name}")
+  tmp = params[:file][:tempfile]
+  FileUtils.mv(tmp, "#{UPLOAD_PATH}/#{name}")
+  FileUtils.chmod(0644, "#{UPLOAD_PATH}/#{name}")
   "#{ENV['HOST_PREFIX']}/#{Addressable::URI.escape(name)}\n"
 end
 
