@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# A minor TODO for the future: I would love it if this script would
+# remember when it cant download a video, and like, mark that as something
+# to not try to download in the future. just to avoid the extra requests to
+# youtube for videos that i cant get anyway
+
 # Minimum and maximum sleep between each download. This is passed to
 # youtube-dl, and also used for some of our own sleep statements
 min_sleep=30
@@ -23,6 +28,9 @@ if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     printf '%s\n' ''
     printf '%s\n' '    also, the script is rate limited to 500KB/s. you can'
     printf '%s\n' '    change that by editing the ytdl function in this file.'
+    printf '%s\n' ''
+    printf '%s\n' '    final thing u can set env variable NO_PROGRESS=1 to'
+    printf '%s\n' '    disable ytdl progress output'
     exit 0
 fi
 
@@ -85,6 +93,12 @@ exclude_empty_lines() {
     grep -v '^\s*$' "$@"
 }
 
+progress_flag=""
+if [ -n "$NO_PROGRESS" ]; then
+    printf '%s\n' 'Disabling youtube-dl download progress output'
+    progress_flag="--no-progress"
+fi
+
 # Read lines from input playlist file, excluding any empty lines
 exclude_empty_lines "$playlist_file" \
     | while read -r folder && read -r playlist_link; do
@@ -114,9 +128,9 @@ exclude_empty_lines "$playlist_file" \
                 # all the arguments provided to it to the youtube-dl command
                 # with a $@ , but we may want to make the proxy arguments
                 # explicitly handled by the function instead
-                dl_playlist --proxy "socks5://$proxy/" "$playlist_link"
+                dl_playlist $progress_flag --proxy "socks5://$proxy/" "$playlist_link"
             else
-                ytdl "$playlist_link"
+                dl_playlist $progress_flag "$playlist_link"
             fi
         )
 
