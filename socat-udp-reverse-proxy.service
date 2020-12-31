@@ -1,0 +1,14 @@
+[Unit]
+Description=SOCAT Reverse Proxy UDP
+After=network.target
+
+[Service]
+# 120 second timeout because UDP doesnt have connections so we have to specify
+# the timeout ourselves.
+# this is equivalent to the default value for nf_conntrack_udp_timeout_stream
+ExecStart=/usr/bin/socat -T120 UDP4-LISTEN:<srcport>,bind=0.0.0.0,reuseaddr,fork,su=nobody UDP4:<dsthost>:<dstport>
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
