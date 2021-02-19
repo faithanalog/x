@@ -61,8 +61,8 @@ cat "$config" \
         if [ "$action" = "up" ]; then
             ip link add "$device" type wireguard
             if [ -n "$preup" ]; then eval $preup; fi
-            ip -4 address add "$address" dev mullvad
-            ip link set mtu 1420 up dev mullvad
+            ip -4 address add "$address" dev "$device"
+            ip link set mtu 1420 up dev "$device"
             wg setconf "$device" <(grep -Evi '^ *(PreUp|PreDown|PostUp|PostDown|Address)' "$config")
             if [ -n "$postup" ]; then eval $postup; fi
         fi
