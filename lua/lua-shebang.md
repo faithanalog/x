@@ -28,7 +28,7 @@ in /bin/sh:
 - if a lua is found, `exec` replaces the `sh` process with a `lua` process, providing the current file as the first argument.
 
 in lua:
-- `_=[[` starts defining `_` and opens a multi-line comment
+- `_=[[` starts defining `_` and opens a multi-line string
 - the sh code is ignored because it's in the comment
-- `]]` closes the comment, and `_` is defined to a 0-length string
+- `]]` closes the multi-line string, and `_` is defined as that string 
 - the lua file runs as normal
