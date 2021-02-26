@@ -29,6 +29,6 @@ in /bin/sh:
 
 in lua:
 - `_=[[` starts defining `_` and opens a multi-line string
-- the sh code is ignored because it's in the comment
+- the sh code is ignored because it's in the string
 - `]]` closes the multi-line string, and `_` is defined as that string 
 - the lua file runs as normal
