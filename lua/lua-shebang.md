@@ -22,7 +22,7 @@ print("lua code here!")
 This shebang works by running the script with /bin/sh.
 
 in /bin/sh:
-- `_=[[` sets the `_` variable to `"[["
+- `_=[[` sets the `_` variable to `"[["`
 - the for-loop runs
 - if no lua is found, `sh` dies with `exit 1`
 - if a lua is found, `exec` replaces the `sh` process with a `lua` process, providing the current file as the first argument.
