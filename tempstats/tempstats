@@ -6,12 +6,13 @@ local lunajson = require 'lunajson'
 local fan_speed_file = '/sys/class/hwmon/hwmon0/fan1_input'
 
 local temperature_files = {
-    package_id_0= '/sys/class/hwmon/hwmon1/temp1_input',
-    core_0= '/sys/class/hwmon/hwmon1/temp2_input',
-    core_1= '/sys/class/hwmon/hwmon1/temp3_input'
+    package_id_0 = '/sys/class/hwmon/hwmon1/temp1_input',
+    core_0 = '/sys/class/hwmon/hwmon1/temp2_input',
+    core_1 = '/sys/class/hwmon/hwmon1/temp3_input'
 }
 
-local output_handle = io.popen('lz4 >> /var/log/tempstats.lz4', 'w')
+--local output_handle = io.popen('lz4 >> /var/log/tempstats.lz4', 'w')
+local output_handle = io.open('/var/log/tempstats.txt', 'w')
 output_handle:setvbuf('line')
 
 local function main()
@@ -19,8 +20,8 @@ local function main()
         local stats = {
             time = os.time(),
             fan_speed = nil,
-            temperature= {},
-            core_speed= {}
+            temperature = {},
+            core_speed = {}
         }
 
         local fan_speed_handle = io.open(fan_speed_file, 'r')
@@ -45,7 +46,8 @@ local function main()
             core_n = core_n + 1
         end
 
-        output_handle:write(lunajson.encode(stats), '\n')
+        output_handle:write(lunajson.encode(stats))
+        output_handle:write('\n')
         posix.sleep(1)
     end
 end
