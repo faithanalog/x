@@ -1,0 +1,53 @@
+#!/usr/bin/env lua
+-- luarocks install luaposix lunajson
+local posix = require 'posix'
+local lunajson = require 'lunajson'
+
+local fan_speed_file = '/sys/class/hwmon/hwmon0/fan1_input'
+
+local temperature_files = {
+    package_id_0= '/sys/class/hwmon/hwmon1/temp1_input',
+    core_0= '/sys/class/hwmon/hwmon1/temp2_input',
+    core_1= '/sys/class/hwmon/hwmon1/temp3_input'
+}
+
+local output_handle = io.popen('lz4 >> /var/log/tempstats.lz4', 'w')
+output_handle:setvbuf('line')
+
+local function main()
+    while true do
+        local stats = {
+            time = os.time(),
+            fan_speed = nil,
+            temperature= {},
+            core_speed= {}
+        }
+
+        local fan_speed_handle = io.open(fan_speed_file, 'r')
+        stats.fan_speed = fan_speed_handle:read('l')
+        fan_speed_handle:close()
+
+        for name, file in pairs(temperature_files) do
+            local handle = io.open(file, 'r')
+            local temp = handle:read('l')
+            handle:close()
+            stats.temperature[name] = temp
+        end
+
+
+        local cpuinfo_handle = io.open('/proc/cpuinfo', 'r')
+        local cpuinfo = cpuinfo_handle:read('a')
+        cpuinfo_handle:close()
+
+        local core_n = 1
+        for frequency in cpuinfo:gmatch('cpu MHz%s+: ([%d.]+)') do
+            stats.core_speed[core_n] = frequency
+            core_n = core_n + 1
+        end
+
+        output_handle:write(lunajson.encode(stats), '\n')
+        posix.sleep(1)
+    end
+end
+pcall(main)
+output_handle:close()
