@@ -12,7 +12,7 @@ local temperature_files = {
 }
 
 --local output_handle = io.popen('lz4 >> /var/log/tempstats.lz4', 'w')
-local output_handle = io.open('/var/log/tempstats.txt', 'w')
+local output_handle = io.open('/var/log/tempstats.txt', 'a')
 output_handle:setvbuf('line')
 
 local function main()
