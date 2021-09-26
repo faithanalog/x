@@ -73,13 +73,20 @@ int main(int argc, char **argv) {
         // End of current directory
         if (c == '/') {
             // outbuf is full, break
-            if (outbuf_idx + 2 > MAXLEN) {
+            if (outbuf_idx + 3 > MAXLEN) {
                 break;
             }
 
             // Insert the first char of current directory and then a slash
             outbuf[outbuf_idx++] = *dir_start;
+            // If the first char is a `.` and the second char is not a
+            // slash, insert the second character as well.
+            if (*dir_start == '.' && *(dir_start + 1) != '/') {
+                outbuf[outbuf_idx++] = *(dir_start + 1);
+            }
             outbuf[outbuf_idx++] = '/';
+
+            // New dir_start after the slash
             dir_start = pwd + 1;
         }
 
