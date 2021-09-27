@@ -1,21 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define MAXLEN 255
+// one byte reserved for null
+char outbuf[MAXLEN + 1];
+
+#define PWD_BUF_LEN 2048
+char pwd_buf[PWD_BUF_LEN];
 
 int main(int argc, char **argv) {
-    char* home = getenv("HOME");
-    char* pwd = getenv("PWD");
+    char* pwd = pwd_buf;
+    int outbuf_idx = 0;
 
-    if (pwd == NULL) {
+    if (getcwd(pwd, PWD_BUF_LEN) == NULL) {
         return 1;
     }
 
-    // one byte reserved for null
-    char outbuf[MAXLEN + 1];
-    int outbuf_idx = 0;
-
     // Replace home prefix with tilde in outbuf
+    char* home = getenv("HOME");
     if (home != NULL) {
         char* orig_pwd = pwd;
         for (;;) {
